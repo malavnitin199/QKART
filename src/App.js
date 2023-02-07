@@ -1,5 +1,6 @@
 import Register from "./components/Register";
 import ipConfig from "./ipConfig.json";
+import React from "react";
 
 export const config = {
   endpoint: `http://${ipConfig.workspaceIp}:8082/api/v1`,
