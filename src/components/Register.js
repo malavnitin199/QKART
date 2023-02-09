@@ -5,12 +5,15 @@ import axios from "axios";
 import { Axios } from "axios";
 import { useSnackbar } from "notistack";
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
 
+
 const Register = () => {
+  const history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
   const [data,setData] = useState({
     username: "",
@@ -64,6 +67,7 @@ const Register = () => {
       })
       enqueueSnackbar("register Successfully",{variant :"success"})
       setLoading(false);
+      history.push("/login");
     
       }
       catch(e){
@@ -173,18 +177,21 @@ const Register = () => {
             value={data.confirm}
             onChange={handleOnChange}
           />{loading ?(
-            <Box display = "flex" justifyContent="center" alinnItems="centre">
+            <Box display = "flex" justifyContent="center" alingItems="centre">
               <CircularProgress size={25} color="primary"/>
               </Box>):(
            <Button className="button" variant="contained" onClick = {reg}>
             Register Now
            </Button>)}
-          <p className="secondary-action">
+           
+          <p className="secondary-action"
+      >
             Already have an account?{" "}
-             <a className="link" href="#">
+             <a className="link" href="/login">
               Login here
              </a>
           </p>
+          
         </Stack>
       </Box>
       <Footer />

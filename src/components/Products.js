@@ -13,7 +13,6 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Products.css";
-import ProductCard from "./ProductCard";
 
 // Definition of Data Structures used
 /**
@@ -186,7 +185,7 @@ const Products = () => {
       </Header>
 
       {/* Search view for mobiles */}
-      <TextField
+      {/* <TextField
         className="search-mobile"
         size="small"
         fullWidth
@@ -240,7 +239,7 @@ const Products = () => {
           </Grid>
           </div>
         )}
-      </Grid>
+      </Grid> */}
 
      
       <Footer />

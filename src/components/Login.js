@@ -10,6 +10,7 @@ import Header from "./Header";
 import "./Login.css";
 
 const Login = () => {
+  const history = useHistory()
   const { enqueueSnackbar } = useSnackbar();
   const[formData,SetFormData] = useState({username:"",password : ""})
   const[loading , setLoading] = useState(false)
@@ -17,7 +18,9 @@ const Login = () => {
 
   const handleInput = (e) => {
     const[key,value]=[e.target.name,e.target.value];
+    
     SetFormData((nextFormData) => ({...nextFormData,[key]:value}));
+    
   };
   // TODO: CRIO_TASK_MODULE_LOGIN - Fetch the API response
   /**
@@ -44,7 +47,7 @@ const Login = () => {
    * }
    *
    */
-  const login = async (formData) => {
+  const login = async () => {
     if(!validateInput(formData))
     {
       return;
@@ -52,6 +55,7 @@ const Login = () => {
     setLoading(true);
     try{
       const responce = await axios.post(config.endpoint+"/auth/login",formData)
+      
       persistLogin(
         responce.data.token,
         responce.data.username,
@@ -63,7 +67,7 @@ const Login = () => {
       })
       setLoading(false)
       enqueueSnackbar("Logged in successfully",{variant :"warning"})
-      // history.push("/")
+      history.push("/")
 
     }catch(e){
       setLoading(false)
@@ -72,7 +76,7 @@ const Login = () => {
        }
         else{
         
-          return enqueueSnackbar("Something is wrong with backend",{variant:"error"})
+          return enqueueSnackbar("password is incorrect",{variant:"error"})
           }
       
     }
@@ -96,11 +100,11 @@ const Login = () => {
   const validateInput = (data) => {
 
     if(!data.username){
-      enqueueSnackbar("Username is reqired a field",{varient : "warning"})
+      enqueueSnackbar("Username is required a field",{varient : "warning"})
       return false;
     }
     if(!data.password){
-      enqueueSnackbar("password is reqired a field",{varient : "warning"})
+      enqueueSnackbar("password is required a field",{varient : "warning"})
       return false;
     }
     return true;
@@ -123,6 +127,9 @@ const Login = () => {
    * -    `balance` field in localStorage can be used to store the balance amount in the user's wallet
    */
   const persistLogin = (token, username, balance) => {
+    localStorage.setItem('token', token)
+    localStorage.setItem('username', username)
+    localStorage.setItem('balance', balance)
   };
 
   return (
@@ -135,6 +142,7 @@ const Login = () => {
       <Header hasHiddenAuthButtons />
       <Box className="content">
         <Stack spacing={2} className="form">
+        <h2 className="title">Login</h2>
         <TextField
             id="username"
             label="username"
@@ -159,7 +167,7 @@ const Login = () => {
             onChange={handleInput}
           />
           {loading ?(
-            <Box display = "flex" justifyContent="center" alinnItems="centre">
+            <Box display = "flex" justifyContent="center" alingItems="centre">
               <CircularProgress size={25} color="primary"/>
               </Box>):(
            <Button className="button" variant="contained" onClick = {login}>
@@ -168,7 +176,7 @@ const Login = () => {
           <p className="secondary-action">
             Don't have an account?{" "}
              <a className="link" href="/register ">
-              Regiter now
+              Register now
              </a>
           </p>
         </Stack>

@@ -3,13 +3,14 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { SnackbarProvider } from "notistack";
-import { BrowserRouter } from "react-router-dom";
+// import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@mui/system";
 import theme from "./theme";
+import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.render(
   <React.StrictMode>  
-     
+      <BrowserRouter>
         <SnackbarProvider
           maxSnack={1}
           anchorOrigin={{
@@ -20,7 +21,7 @@ ReactDOM.render(
         >
           <App />
         </SnackbarProvider>
-     
+        </BrowserRouter>
   </React.StrictMode>,
    document.getElementById('root')
 );
