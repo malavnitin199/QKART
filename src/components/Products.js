@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
+import ProductCard from "./ProductCard";
 import "./Products.css";
 
 // Definition of Data Structures used
@@ -26,14 +27,14 @@ import "./Products.css";
  * @property {string} _id - Unique ID for the product
  */
 
-const Products = () => {
+ const Products = () => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const [dataLoaded, setDataLoaded] = useState("loading");
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState("");
-  const [searchData, setSearchData] = useState("");
-
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  // const [searchData, setSearchData] = useState("");
+  const [debounceTime,setDebounceTime] = useState(null);
   // const dummyData = {
   //   name: "Tan Leatherette Weekender Duffle",
   //   category: "Fashion",
@@ -78,33 +79,36 @@ const Products = () => {
    * HTTP 500
    * {
    *      "success": false,
-   *      "message": "Something went wrong. Check the backend console for more details"
+   *      "message": "Something went wrong. Check the backend console for moren details"
    * }
    */
   const performAPICall = async () => {
-    setDataLoaded("loading");
+    setLoading(true);
     try {
       let res = await axios.get(`${config.endpoint}/products`);
-      setData(res.data);
-      setDataLoaded("loaded");
+      setProducts(res.data);
+      setFilteredProducts(res.data)
+      setLoading(false);
     } catch (e) {
-      if (e.response) {
+      if (e.response && e.responce.status === 500) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
+        return null
       } else {
-        enqueueSnackbar("Something Went Wrong", { variant: "error" });
+        enqueueSnackbar("Could not fetch products. check that the backend running, reachable and returns valid JSON.", { variant: "error" });
+        return null;
       }
-      setDataLoaded("loaded");
+      
     }
   };
-
+ 
   useEffect(() => {
     performAPICall();
     // setDataLoaded("loaded");
   }, []);
 
-  useEffect(() => {
-    performSearch(searchData);
-  }, [searchData]);
+  // useEffect(() => {
+  //   performSearch(searchData);
+  // }, [searchData]);
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Implement search logic
   /**
@@ -121,28 +125,31 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
-    setDataLoaded("loading");
+    
     try {
-      const res = await axios.get(
+
+      const responce = await axios.get(
         `${config.endpoint}/products/search?value=${text}`
       );
-      console.log(res.data);
-      if (res.data.length === 0) {
-        setDataLoaded("notfound");
-      } else {
-        setFilteredData(res.data);
-        setDataLoaded("loaded");
-      }
+     
+      setFilteredProducts(responce.data)
+      
     } catch (e) {
-      if (e.resposne) {
-        setDataLoaded("notfound");
-        enqueueSnackbar(e.response.data.message, { variant: "error" });
-      } else {
-        setDataLoaded("notfound");
-        enqueueSnackbar("Something Went Wrong", { variant: "error" });
-      }
+      if (e.response.status === 404) {
+        setFilteredProducts([])
+      } 
+      else if(e.response.status === 500)
+      {
+        enqueueSnackbar(e.responce.data.message, { variant: "error" });
+        setFilteredProducts(products)
+      // }else {
+       
+      //   enqueueSnackbar("Something Went Wrong", { variant: "error" });
+      //   setFilteredProducts(products)
+      // }
     }
   };
+}
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Optimise API calls with debounce search implementation
   /**
@@ -154,12 +161,18 @@ const Products = () => {
    *
    * @param {NodeJS.Timeout} debounceTimeout
    *    Timer id set for the previous debounce call
-   *
+   *time
    */
-  const debounceSearch = (event, debounceTimeout) => {};
+  const debounceSearch = (event,debounceTime) => {
+    if(debounceTime)
+    {
+      clearTimeout(debounceTime);
+    }
 
-  const handleSearch = (e) => {
-    setSearchData(e.target.value);
+    const time = setTimeout(async() => {
+      await performSearch(event.target.value)
+    }, 500);
+    setDebounceTime(time)
   };
 
   return (
@@ -167,84 +180,70 @@ const Products = () => {
       <Header>
         {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
         <TextField
-          className="search-desktop"
-          size="small"
-          InputProps={{
-            className: "search",
-            endAdornment: (
-              <InputAdornment position="end">
-                <Search color="primary" />
-              </InputAdornment>
-            ),
-          }}
-          placeholder="Search for items/categories"
-          name="search"
-          value={searchData}
-          onChange={handleSearch}
-        />
-      </Header>
-
-      {/* Search view for mobiles */}
-      {/* <TextField
-        className="search-mobile"
+        className="search-desktop"
         size="small"
-        fullWidth
+        
         InputProps={{
+          className:"search",
           endAdornment: (
             <InputAdornment position="end">
-              <Search color="primary" />
+              <Search color="primary" />     
             </InputAdornment>
           ),
         }}
         placeholder="Search for items/categories"
         name="search"
+        onChange={(e) => debounceSearch(e,debounceTime)}
       />
-      <Grid container>
-        <Grid item className="product-grid">
-          <Box className="hero">
-            <p className="hero-heading">
-              India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
-              to your door step
-            </p>
+        <TextField
+        className="search-mobile"
+        size="small"
+        
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <Search color="primary" />     
+            </InputAdornment>
+          ),
+        }}
+        placeholder="Search for items/categories"
+        name="search"
+        onChange={(e) => debounceSearch(e, debounceTime)}
+      />
+        </Header>
+
+        
+      <Grid container >
+         <Grid item className="product-grid">
+           <Box className="hero">
+             <p className="hero-heading">
+               India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
+               to your door step
+             </p>
+           </Box>
+         </Grid>
+         { loading ? (
+          <Box className="loading">
+            <CircularProgress/>
+            <h4>Loading Products...</h4>
           </Box>
-        </Grid>
-
-        {dataLoaded === "loading" ? (
-          <div className="spinner-container">
-            <div className="spin">
-              <CircularProgress />
-              <div>Loading Products...</div>
-            </div>
-          </div>
-        ) : (
-          <div class="product-container">
-          <Grid container spacing={3}>
-            {data.length ? (
-              data.map((ele) => (
-                <Grid item xs={6} md={3} key={ele._id}>
-                  <ProductCard
-                    product={ele}
-                    handleAddToCart={() => console.log("Added to Card")}
-                  />
-                </Grid>
-              ))
-            ) : (
-              <div className="spinner-container">
-                <div className="spin">
-                  <SentimentDissatisfied />
-                  <div>No products found</div>
-                </div>
-              </div>
-            )}
+         ):(<Grid container spacing={2} padding={"1rem"}> 
+            {
+              filteredProducts.length?filteredProducts.map((product) => {return (<Grid item   xs={6} md={3} key={product._id}><ProductCard product={product}/></Grid>)})
+              :
+              (
+              <Box className="loading">
+              <SentimentDissatisfied />
+              <div>No products found</div>
+            </Box>)
+            }
           </Grid>
-          </div>
-        )}
-      </Grid> */}
-
-     
+         )}
+       </Grid>
       <Footer />
     </div>
   );
 };
 
+ 
 export default Products;

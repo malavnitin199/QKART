@@ -40,10 +40,10 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
             <img src="logo_light.svg" alt="QKart-icon"></img>
         </Box>
         
-
+        {children}
   
   
-        <Stack direction="row" sapcing={1} alignItems="centre">
+        <Stack direction="row" sapcing={1}>
        
         {localStorage.getItem("username")?(
           <>
