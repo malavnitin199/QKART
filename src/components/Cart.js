@@ -53,7 +53,7 @@ export const generateCartItemsFrom = (cartData, productsData) => {
   const nextCart = cartData.map((item) => ({
     ...item,
     ...productsData.find((product) => item.productId === product._id),
-  }));
+  }));  
   return nextCart;
 };
 

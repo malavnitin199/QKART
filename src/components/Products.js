@@ -109,6 +109,8 @@ const Products = () => {
   const isItemInCart = (items, productId) => {
     return items.findIndex((item) => item.productId === productId) !== -1;
   };
+
+  
   const addToCart = async (token, items, productId,products,qty,options={} ) => {
     if (!token) {
       enqueueSnackbar("Please log in to add item to cart", {
