@@ -1,4 +1,4 @@
-# QKart
+# frontend designing of Qkart website
 
 QKart is an e-commerce application offering various products for customers to choose from.
 
