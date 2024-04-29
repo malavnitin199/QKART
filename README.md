@@ -22,4 +22,14 @@ To get a local copy up and running follow these simple steps:
 
 1. Clone the repository
    ```sh
-   git clone https://github.com/your-username/QKart.git
+   git clone https://github.com/malavnitin199/QKart.git
+
+2. Install dependencies
+   ```sh
+   npm install
+   
+3. Run  the application
+   ```sh
+   npm start 
+
+
